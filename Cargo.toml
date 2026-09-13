@@ -1,0 +1,11 @@
+[package]
+name = "o_051_052"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# cargo add tokio --features macros,rt-multi-thread,time
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "time"] }
+# cargo add tokio-util
+tokio-util = "0.7.19"
+
