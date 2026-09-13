@@ -12,10 +12,9 @@ async fn worker(
     println!("[worker] запущен") ;
 
     loop {
-        // Все асинхронные вызовы не содержат .await внутри tokio::select!
         let item = tokio::select! {
             // Чтение приёмного канала
-            res = rs.recv() => match res {
+            res = rs.recv() => match res { // асинхронный вызов в голове ветки без .await
                 Some(v) => v,
                 None => {
                     println!("[worker] tr канал закрыт, вызод.") ;
@@ -24,7 +23,7 @@ async fn worker(
             },            
             // Future завершится немедленно, если на момент вызова этого метода токен 
             // уже отменен.
-            _ = token.cancelled() => {
+            _ = token.cancelled() => { // асинхронный вызов в голове ветки без .await
                 println!("[worker] получил сиигнал отмены, выход") ;
                 break ;
             },
@@ -36,7 +35,7 @@ async fn worker(
         sleep(Duration::from_millis(300)).await ;
 
         if tr.send(item * 10).await.is_err() {
-            println!("[worker] приёмник результата закрыт, вызод.") ;
+            println!("[worker] приёмник результата закрыт, выход.") ;
             break;
         }
 
@@ -92,11 +91,11 @@ async fn main() {
 
         loop {
             tokio::select! {
-                _ = producer_token.cancelled() => {
+                _ = producer_token.cancelled() => { // асинхронный вызов в голове ветки без .await
                     println!("[producer] отмена, выход.") ;
                     break ;
                 },
-                _ = tick.tick() => {
+                _ = tick.tick() => { // асинхронный вызов в голове ветки без .await
                     n += 1 ;
                     if work_tr.send(n).await.is_err() {
                         println!("[producer] work_rs закрыть, выход") ;
